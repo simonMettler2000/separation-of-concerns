@@ -1,50 +1,53 @@
-export function printMultiplicationTable(numbers: Array<number>) {
-  // first, let's figure out the biggest value
-  const biggest = numbers.reduce((acc, n) => (n > acc ? n : acc));
+// multiplication_table.ts
 
-  // then, find the biggest possible result to compute its magnitude
-  let biggestResult = biggest * biggest;
-  let magnitude = 0;
-  while (biggestResult > 0) {
-    magnitude++;
-    biggestResult = Math.round(biggestResult / 10);
-  }
-  magnitude++; // add an additional space for the width
+/**
+ * Computes a matrix of products for the given numbers.
+ */
+export function computeMultiplicationMatrix(numbers: number[]): number[][] {
+  return numbers.map((row) => numbers.map((col) => row * col));
+}
 
-  // finally, calculate and output the nicely formatted multiplication table
-  let titleRow = "*";
-  while (titleRow.length < magnitude) {
-    titleRow = " " + titleRow;
-  }
-  titleRow += " ||";
+/**
+ * Computes the required cell width based on the largest number in the matrix.
+ */
+export function computeCellWidth(numbers: number[]): number {
+  const max = Math.max(...numbers) ** 2;
+  return String(max).length + 1; // extra spacing
+}
+
+/**
+ * Formats the multiplication table into an array of text lines (no console output).
+ */
+export function formatMultiplicationTable(numbers: number[]): string[] {
+  const matrix = computeMultiplicationMatrix(numbers);
+  const width = computeCellWidth(numbers);
+
+  // format header
+  const pad = (v: number | string) =>
+    String(v).padStart(width, " ");
+
+  let header = pad("*") + " ||";
   for (const n of numbers) {
-    let cell = `${n}`;
-    while (cell.length < magnitude) {
-      cell = " " + cell;
-    }
-    titleRow += `${cell} |`;
+    header += pad(n) + " |";
   }
-  console.log(titleRow);
-  let sep = "";
-  for (let i = 0; i < titleRow.length; i++) {
-    sep += "=";
-  }
-  console.log(sep);
-  for (const n of numbers) {
-    let row = `${n}`;
-    while (row.length < magnitude) {
-      row = ` ${row}`;
+
+  const separator = "=".repeat(header.length);
+
+  const rows = matrix.map((rowValues, rowIndex) => {
+    let row = pad(numbers[rowIndex]) + " ||";
+    for (const v of rowValues) {
+      row += pad(v) + " |";
     }
-    row = `${row} ||`;
-    for (const m of numbers) {
-      const product = n * m;
-      let cell = `${product}`;
-      while (cell.length < magnitude) {
-        cell = ` ${cell}`;
-      }
-      cell += " |";
-      row += cell;
-    }
-    console.log(row);
-  }
+    return row;
+  });
+
+  return [header, separator, ...rows];
+}
+
+/**
+ * Public function for the demo: prints the formatted table.
+ */
+export function printMultiplicationTable(numbers: number[]): void {
+  const lines = formatMultiplicationTable(numbers);
+  lines.forEach((line) => console.log(line));
 }
